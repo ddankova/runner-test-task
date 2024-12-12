@@ -6,7 +6,6 @@ using UnityEngine;
 public class CameraAnimationsController : MonoBehaviour
 {
     [SerializeField] GameObject background;
-    [SerializeField] Transform animalsParent;
 
     GameObject character;
     CharacterController charController;

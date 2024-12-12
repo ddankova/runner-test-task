@@ -358,11 +358,15 @@
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.28f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll"
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.28f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 "Assets/Scripts/BackgroundController.cs"
+"Assets/Scripts/BoatController.cs"
 "Assets/Scripts/CameraAnimationsController.cs"
 "Assets/Scripts/CharacterController.cs"
 "Assets/Scripts/CharSelectorScript.cs"
+"Assets/Scripts/DialogManager.cs"
 "Assets/Scripts/LoadingScript.cs"
+"Assets/Scripts/ObjectsSpawner.cs"
 "Assets/Scripts/SafeArea.cs"
+"Assets/Scripts/ScoreManager.cs"
 -langversion:9.0
 /deterministic
 /optimize+

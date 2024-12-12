@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - boat
+  - dialogManager
+  - spawner
+  - obstacle
   layers:
   - Default
   - TransparentFX

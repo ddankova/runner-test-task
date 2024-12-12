@@ -61,7 +61,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\BackgroundController.cs" />
+    <Compile Include="Assets\Scripts\BoatController.cs" />
+    <Compile Include="Assets\Scripts\ObjectsSpawner.cs" />
     <Compile Include="Assets\Scripts\CharSelectorScript.cs" />
+    <Compile Include="Assets\Scripts\DialogManager.cs" />
+    <Compile Include="Assets\Scripts\ScoreManager.cs" />
     <Compile Include="Assets\Scripts\LoadingScript.cs" />
     <Compile Include="Assets\Scripts\SafeArea.cs" />
     <Compile Include="Assets\Scripts\CameraAnimationsController.cs" />

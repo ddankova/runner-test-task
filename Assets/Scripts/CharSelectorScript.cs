@@ -23,6 +23,7 @@ public class CharSelectorScript : MonoBehaviour
 
     float chosenCharScale = 7.2f;
     float notChosenCharsScale = 4.8f;
+    float charNormalScale = 6f;
 
     Vector3 charStartRotation = new Vector3(0, -90, 0);
     Vector3 charGameScale = new Vector3(0.045f, 0.045f, 0.045f);
@@ -30,6 +31,11 @@ public class CharSelectorScript : MonoBehaviour
     Vector3 animalParentChoicePosition = Vector3.zero;
 
     void Start()
+    {
+        StartSelection();
+    }
+
+    public void StartSelection()
     {
         // setting the characters parent obj before the camera
         if (mainCamera == null)
@@ -48,6 +54,8 @@ public class CharSelectorScript : MonoBehaviour
         animalsParentTransform.LookAt(mainCamera.transform);
 
         chars = GetAllChildObjects(animalsParent);
+
+        chars.ForEach(character => character.transform.localScale = Vector3.one * charNormalScale);
 
         StartCoroutine(RotateCharacters());
     }
