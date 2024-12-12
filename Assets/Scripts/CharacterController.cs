@@ -28,7 +28,7 @@ public class CharacterController : MonoBehaviour
     Vector3 charPosWithoutControlling;
 
     // accepted deviations from the center of the root
-    float deviationOnRoad = 2.1f;
+    float deviationOnRoad = 2.5f;
     float deviationOnRiverStart = 7f;
     float deviationOnRiverMedium = 5f;
     float deviationOnRiverSmallest = 4f;
@@ -208,6 +208,8 @@ public class CharacterController : MonoBehaviour
             else if (nextPointIndex >= 68 && nextPointIndex <= 75) currentDeviation = deviationOnRiverStart;
             else if (nextPointIndex >= 76 && nextPointIndex <= 81) currentDeviation = deviationOnRiverMedium;
             else if (nextPointIndex >= 82 && nextPointIndex <= 95) currentDeviation = deviationOnRiverSmallest;
+
+            if (spawner.currentDeviation != currentDeviation) spawner.currentDeviation = currentDeviation;
 
             if (controllingDeviation.magnitude > currentDeviation && !returningToCenter) StartCoroutine(ReturnToCenter(0.5f));
 

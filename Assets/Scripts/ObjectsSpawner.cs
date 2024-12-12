@@ -13,8 +13,10 @@ public class ObjectsSpawner : MonoBehaviour
 
     [SerializeField] Transform rootPoints;
 
-    float minObstacleSpawnDistance = 10;
-    float maxObstacleSpawnDistance = 25;
+    public float currentDeviation = 0;
+
+    float minObstacleSpawnDistance = 5;
+    float maxObstacleSpawnDistance = 15;
 
     float distanceFromTheLastObstacle = 0;
 
@@ -50,53 +52,86 @@ public class ObjectsSpawner : MonoBehaviour
         // iterating through points to set obstacles
         int pointsCount = rootPoints.childCount;
 
-        int pointIndex = 0;
-        // stores the points within that the obstacle will be placed
-        List<int> indexesOfCurrentobstacle = new List<int>();
+        List<int> acceptablePointIndices = new List<int>();
 
-        while (pointIndex < pointsCount - 1)
+        // creating the list of acceptable indices
+        for (int i = 0; i < pointsCount; i++) 
         {
-            // clear previous points
-            indexesOfCurrentobstacle.Clear();
-
-            // check if the index is acceptable
-            if (CheckPointIndex(pointIndex))
-            {
-                indexesOfCurrentobstacle.Add(pointIndex);
-                int previousPointIndex = pointIndex;
-                Vector3 previousPointPos = rootPoints.GetChild(previousPointIndex).transform.position;
-
-                int nextPointIndex = pointIndex + 1;
-                float distanceToNextPoint = (rootPoints.GetChild(nextPointIndex).transform.position - previousPointPos).magnitude;
-
-                while (distanceToNextPoint < minObstacleSpawnDistance)
-                {
-                    previousPointIndex = nextPointIndex;
-                    indexesOfCurrentobstacle.Add(previousPointIndex);
-                    previousPointPos = rootPoints.GetChild(previousPointIndex).transform.position;
-                    nextPointIndex++;
-
-                    if (CheckPointIndex(nextPointIndex))
-                    {
-                        distanceToNextPoint += (rootPoints.GetChild(nextPointIndex).transform.position - previousPointPos).magnitude;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                Debug.Log("----------------------indexes of current obstacles------------------------");
-                indexesOfCurrentobstacle.ForEach(i => Debug.Log(i));
-            }
-
-            pointIndex++;
+            if (CheckPointIndex(i)) acceptablePointIndices.Add(i);
         }
 
-        GameObject nextObstacleToSpawn = ChooseObstacleToSpawn();
-        if (nextObstacleToSpawn != null)
+        Vector3 lastObstaclePosition = Vector3.zero;
+        float distanceFromObstacle = 0;
+        int previousPointIndex = -1;
+        bool obstacleJustSet = false;
+
+        // random distance between obstacles
+        float randomSpawnDistance = Random.Range(minObstacleSpawnDistance, maxObstacleSpawnDistance);
+
+        // iterate through the list of acceptable indices
+        foreach (int pointIndex in acceptablePointIndices)
         {
-            
+            if (acceptablePointIndices.IndexOf(pointIndex) == 0)
+            {
+                // setting the first obstacle in the first acceptable point
+                lastObstaclePosition = rootPoints.GetChild(pointIndex).position;
+                SetObstacle(lastObstaclePosition);
+                obstacleJustSet = true;
+            }
+            // if indices are too far, skip thye point
+            else if (pointIndex - previousPointIndex > 1) { previousPointIndex = pointIndex; continue; }
+            else
+            {
+                Vector3 pointPos = rootPoints.GetChild(pointIndex).position;
+
+                if (obstacleJustSet)
+                {
+                    // if obstacle just set reset distance
+                    distanceFromObstacle = (pointPos - lastObstaclePosition).magnitude;
+                }
+                else
+                {
+                    // add the distance between points to distances scope
+                    Vector3 previousPointPos = rootPoints.GetChild(previousPointIndex).position;
+                    distanceFromObstacle += (pointPos - previousPointPos).magnitude;
+                }
+
+                // current index of the point
+                int index = acceptablePointIndices.IndexOf(pointIndex);
+
+                if (index + 1 < acceptablePointIndices.Count)
+                {
+                    int nextPointIndex = acceptablePointIndices[index + 1];
+                    Vector3 nextPointPos = rootPoints.GetChild(nextPointIndex).position;
+                    float futureDistanceFromObstacle = distanceFromObstacle + (nextPointPos - pointPos).magnitude;
+
+                    // check if in the next iteration distance will be needed
+                    if (futureDistanceFromObstacle > randomSpawnDistance) 
+                    { 
+                        float distanceOffset = randomSpawnDistance - futureDistanceFromObstacle;
+                        // find the new obstacle point on the line between two points
+                        lastObstaclePosition = pointPos + (nextPointPos - pointPos).normalized * distanceOffset;
+                        SetObstacle(lastObstaclePosition);
+                        // reset random distance
+                        randomSpawnDistance = Random.Range(minObstacleSpawnDistance, maxObstacleSpawnDistance);
+                        obstacleJustSet = true;
+                    }
+                    else obstacleJustSet = false;
+                }
+                else break;
+            }
+
+            previousPointIndex = pointIndex;
+        }
+    }
+
+    void SetObstacle(Vector3 position)
+    {
+        GameObject obstaclePrefab = ChooseObstacleToSpawn();
+
+        if (obstaclePrefab != null)
+        {
+            Instantiate(obstaclePrefab, position, Quaternion.identity, obstaclesParent);
         }
     }
 
@@ -125,6 +160,6 @@ public class ObjectsSpawner : MonoBehaviour
     bool CheckPointIndex(int index)
     {
         // spawning points: 6-41 104-144
-        return (index >= 6 && index <= 41) || (index >= 104 && index <= 144);
+        return (index >= 2 && index <= 41) || (index >= 104 && index <= 144);
     }
 }
