@@ -8,6 +8,10 @@ TagManager:
   - dialogManager
   - spawner
   - obstacle
+  - blueBonus
+  - yellowBonus
+  - greenBonus
+  - character
   layers:
   - Default
   - TransparentFX

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BoatController : MonoBehaviour
@@ -12,6 +13,8 @@ public class BoatController : MonoBehaviour
 
     Vector3 initPosition = Vector3.zero;
 
+    CharacterController characterController = null;
+
     private void Start()
     {
         collider = GetComponent<BoxCollider>();
@@ -23,18 +26,19 @@ public class BoatController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (characterController == null) characterController = character.GetComponent<CharacterController>();
         GameObject colliderGameObject = other.gameObject;
 
         if (colliderGameObject != character)
         {
-            Debug.Log("Boat collided " + other.gameObject.name);
+            StartCoroutine(characterController.MistakeAnimation(1f, other.gameObject));
         }
     }
 
     public void DecreaseColliderY()
     {
-        collider.size = new Vector3(colliderSize.x, 1f, colliderSize.z);
-        collider.center = new Vector3(colliderCenter.x, 0.63f, colliderCenter.z);
+        collider.size = new Vector3(colliderSize.x, 0.8f, colliderSize.z);
+        collider.center = new Vector3(colliderCenter.x, 0.4f, colliderCenter.z);
     }
 
     public void IncreaseColliderY()

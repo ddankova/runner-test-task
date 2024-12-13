@@ -12,6 +12,7 @@ public class CharSelectorScript : MonoBehaviour
     [SerializeField] Transform rootPoints;
 
     [SerializeField] GameObject chooseCharScreen;
+    [SerializeField] GameObject gameScreen;
     [SerializeField] Button confirmBtn;
 
     [SerializeField] Vector3 startCameraRot = new Vector3(-48, 13, 0);
@@ -32,6 +33,8 @@ public class CharSelectorScript : MonoBehaviour
 
     void Start()
     {
+        animalsParent.GetComponent<AudioSource>().Play();
+
         StartSelection();
     }
 
@@ -145,6 +148,7 @@ public class CharSelectorScript : MonoBehaviour
         confirmBtn.onClick.RemoveAllListeners();
         confirmBtn.gameObject.SetActive(false);
         chooseCharScreen.SetActive(false);
+        gameScreen.SetActive(true);
         StopAllCoroutines();
 
         foreach (GameObject character in chars)

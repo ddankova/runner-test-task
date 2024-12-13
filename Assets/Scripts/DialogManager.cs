@@ -5,17 +5,19 @@ using UnityEngine.UI;
 
 public class DialogManager : MonoBehaviour
 {
-    [SerializeField] GameObject jumpText;
+    [SerializeField] GameObject dialogText;
     [SerializeField] GameObject endScreen;
     [SerializeField] Text scoreText;
     [SerializeField] Text bestScoreText;
+    [SerializeField] Image mistakeImage;
 
-    public IEnumerator ShowJumpText(float duration)
+    public IEnumerator ShowText(string text, float duration)
     {
         // Ensure jumpText is active
-        jumpText.SetActive(true);
+        dialogText.SetActive(true);
 
-        RectTransform rectTransform = jumpText.GetComponent<RectTransform>();
+        RectTransform rectTransform = dialogText.GetComponent<RectTransform>();
+        dialogText.GetComponent<Text>().text = text;
         if (rectTransform == null)
         {
             Debug.LogError("jumpText does not have a RectTransform component!");
@@ -46,13 +48,48 @@ public class DialogManager : MonoBehaviour
         yield return StartCoroutine(MoveRectTransform(rectTransform, centerScreen, offScreenRight, halfDuration));
 
         // Deactivate jumpText after the animation
-        jumpText.SetActive(false);
+        dialogText.SetActive(false);
+    }
+
+    public IEnumerator ShowMistakeFrame(float duration)
+    {
+        float halfDuration = duration / 2f;
+        Color originalColor = mistakeImage.color;
+        Color transparentColor = new Color(originalColor.r, originalColor.g, originalColor.b, 0f);
+
+        // Ensure the image starts fully transparent
+        mistakeImage.color = transparentColor;
+        mistakeImage.gameObject.SetActive(true);
+
+        // Fade In
+        float elapsedTime = 0f;
+        while (elapsedTime < halfDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float alpha = Mathf.Clamp01(elapsedTime / halfDuration);
+            mistakeImage.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+            yield return null;
+        }
+
+        // Hold at full opacity for a moment if needed
+        yield return new WaitForSeconds(0.1f);
+
+        // Fade Out
+        elapsedTime = 0f;
+        while (elapsedTime < halfDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float alpha = Mathf.Clamp01(1f - (elapsedTime / halfDuration));
+            mistakeImage.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+            yield return null;
+        }
     }
 
     public void ShowEndScreen()
     {
         endScreen.SetActive(true);
         ScoreManager scoreManager = GetComponent<ScoreManager>();
+        scoreManager.UpdateBestScore();
         scoreText.text = scoreManager.score.ToString();
         bestScoreText.text = "Best score: " + scoreManager.bestScore;
     }

@@ -32,7 +32,7 @@ public class CharacterController : MonoBehaviour
     float deviationOnRiverStart = 7f;
     float deviationOnRiverMedium = 5f;
     float deviationOnRiverSmallest = 4f;
-    float currentDeviation = 0;
+    float currentDeviation = 2.5f;
     bool returningToCenter;
 
     float regularJumpHeight = 3f;
@@ -82,7 +82,16 @@ public class CharacterController : MonoBehaviour
     {
         if (other.gameObject != boat)
         {
-            Debug.Log("Character collided with: " + other.gameObject.name);
+            string tag = other.gameObject.tag;
+            if (tag == "obstacle")
+            {
+                StartCoroutine(MistakeAnimation(0.5f, other.gameObject));
+
+                if (scoreManager.lives == 0) EndGame();
+            }
+            else if (tag == "blueBonus") scoreManager.IncreaseScore(1);
+            else if (tag == "greenBonus") scoreManager.IncreaseScore(2);
+            else if (tag == "yellowBonus") scoreManager.IncreaseScore(3);
         }
     }
 
@@ -101,7 +110,8 @@ public class CharacterController : MonoBehaviour
         charPosWithoutControlling = transform.position;
         cameraAnimationsController = Camera.main.gameObject.GetComponent<CameraAnimationsController>();
         spawner = GameObject.FindWithTag("spawner").GetComponent<ObjectsSpawner>();
-        spawner.ResetObstacles();
+        // initial set of obstacles and bonuses
+        spawner.ResetSpawnObjects();
         GameObject dialogManagerObject = GameObject.FindWithTag("dialogManager");
         dialogManager = dialogManagerObject.GetComponent<DialogManager>();
         scoreManager = dialogManager.GetComponent<ScoreManager>();
@@ -138,7 +148,7 @@ public class CharacterController : MonoBehaviour
                     if (criticalPointDescription == "exitToRiver" || criticalPointDescription == "exitRiverPoint")
                     {
                         StartCoroutine(DecreaseSpeed(slowdownDuration * speedCoef));
-                        StartCoroutine(dialogManager.ShowJumpText(slowdownDuration * speedCoef));
+                        StartCoroutine(dialogManager.ShowText("Jump!", slowdownDuration * speedCoef));
 
                         necessaryJump = true;
                     }
@@ -208,8 +218,6 @@ public class CharacterController : MonoBehaviour
             else if (nextPointIndex >= 68 && nextPointIndex <= 75) currentDeviation = deviationOnRiverStart;
             else if (nextPointIndex >= 76 && nextPointIndex <= 81) currentDeviation = deviationOnRiverMedium;
             else if (nextPointIndex >= 82 && nextPointIndex <= 95) currentDeviation = deviationOnRiverSmallest;
-
-            if (spawner.currentDeviation != currentDeviation) spawner.currentDeviation = currentDeviation;
 
             if (controllingDeviation.magnitude > currentDeviation && !returningToCenter) StartCoroutine(ReturnToCenter(0.5f));
 
@@ -507,8 +515,28 @@ public class CharacterController : MonoBehaviour
 
     void IncreaseNextPointIndex()
     {
-        if (nextPointIndex == rootPointsObj.childCount - 1) { nextPointIndex = 0; spawner.ResetObstacles();  }
+        if (nextPointIndex == rootPointsObj.childCount - 1) { 
+            nextPointIndex = 0;
+            speedCoef += 0.1f;
+            dialogManager.ShowText("Faster!", 1f);
+            // resets obstacles and bonuses
+            spawner.ResetSpawnObjects();
+        }
         else nextPointIndex++;
+    }
+
+    public IEnumerator MistakeAnimation(float duration, GameObject destroyObstacle)
+    {
+        gamePaused = true;
+        if (currentSurfaceType == SurfaceType.Road) animator.speed = 0;
+
+        scoreManager.DecreaseLives();
+
+        yield return StartCoroutine(dialogManager.ShowMistakeFrame(duration));
+        Destroy(destroyObstacle);
+
+        if (currentSurfaceType == SurfaceType.Road) animator.speed = 1;
+        gamePaused = false;
     }
 
     void EndGame()
