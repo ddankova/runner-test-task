@@ -15,7 +15,7 @@ public class CameraAnimationsController : MonoBehaviour
     bool startAnimationsEnded = false;
 
     // camera to be a little upper than the character
-    float correctiveCameraCoef = 8f;
+    float correctiveCameraCoef = 6f;
     // camera to be down under the arches
     float archCorrectiveCameraCoef = 3f;
 
@@ -189,7 +189,6 @@ public class CameraAnimationsController : MonoBehaviour
     {
         float elapsedTime = 0f;
         float startCorrectiveCameraCoef = correctiveCameraCoef;
-        charController.underArch = true;
 
         while (elapsedTime < duration / 2)
         {
@@ -212,7 +211,5 @@ public class CameraAnimationsController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-
-        charController.underArch = false;
     }
 }

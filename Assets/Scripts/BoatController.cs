@@ -12,6 +12,7 @@ public class BoatController : MonoBehaviour
     Vector3 colliderCenter = Vector3.zero;
 
     Vector3 initPosition = Vector3.zero;
+    Quaternion initRotation = Quaternion.identity;
 
     CharacterController characterController = null;
 
@@ -22,6 +23,7 @@ public class BoatController : MonoBehaviour
         colliderCenter = collider.center;
 
         initPosition = transform.position;
+        initRotation = transform.rotation;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -48,5 +50,5 @@ public class BoatController : MonoBehaviour
         collider.center = new Vector3(colliderCenter.x, 1.45f, colliderCenter.z);
     }
 
-    public void ResetPosition() { transform.position = initPosition; }
+    public void ResetPosition() { transform.position = initPosition; transform.rotation = initRotation; }
 }

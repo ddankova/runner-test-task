@@ -6,9 +6,12 @@ using UnityEngine.UI;
 public class InstructionController : MonoBehaviour
 {
     [SerializeField] Transform highlightsParent;
+    [SerializeField] RectTransform arrow;
     [SerializeField] GameObject page0;
     [SerializeField] GameObject page1;
     [SerializeField] GameObject dialogWingow;
+
+    [SerializeField] CharSelectorScript charSelector;
 
     int currentPageIndex = 0;
 
@@ -16,6 +19,20 @@ public class InstructionController : MonoBehaviour
     void Start()
     {
         StartCoroutine(FadeInAndOutHighlights(3f, 0.7f));
+        StartCoroutine(ScalingArrow());
+    }
+
+    private void Update()
+    {
+        if (Input.anyKeyDown)
+        {
+            if (currentPageIndex < 2) OpenNextPage();
+            else
+            {
+                charSelector.StartSelection();
+                gameObject.SetActive(false);
+            }
+        }
     }
 
     public void OpenNextPage()
@@ -93,5 +110,35 @@ public class InstructionController : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    IEnumerator ScalingArrow()
+    {
+        Vector3 minScale = arrow.localScale * 0.95f;
+        Vector3 maxScale = arrow.localScale * 1.05f;
+        float duration = 0.3f;
+
+        while (true)
+        {
+            // Scale up
+            yield return StartCoroutine(ScaleObject(arrow, minScale, maxScale, duration));
+            // Scale down
+            yield return StartCoroutine(ScaleObject(arrow, maxScale, minScale, duration));
+        }
+    }
+
+    private IEnumerator ScaleObject(Transform target, Vector3 startScale, Vector3 endScale, float time)
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime < time)
+        {
+            elapsedTime += Time.deltaTime;
+            float progress = Mathf.Clamp01(elapsedTime / time);
+            target.localScale = Vector3.Lerp(startScale, endScale, progress);
+            yield return null;
+        }
+
+        target.localScale = endScale; // Ensure the final scale is accurate
     }
 }

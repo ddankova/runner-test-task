@@ -24,7 +24,7 @@ public class ScoreManager : MonoBehaviour
     public void DecreaseLives() 
     { 
         lives--;
-        livesObj.GetChild(lives).gameObject.SetActive(false);
+        if (lives >= 0) livesObj.GetChild(lives).gameObject.SetActive(false);
         mistake.Play();
     }
 

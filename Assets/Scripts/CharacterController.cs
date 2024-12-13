@@ -51,10 +51,11 @@ public class CharacterController : MonoBehaviour
     string criticalPointDescription = null;
 
     // variables for under arch animation
-    public bool underArch = false;
+    bool underArch = false;
     float underArchCameraAnimDuration = 4f;
 
     public bool gamePaused = false;
+    bool gameEnded = false;
 
     CameraAnimationsController cameraAnimationsController = null;
     DialogManager dialogManager = null;
@@ -160,8 +161,14 @@ public class CharacterController : MonoBehaviour
 
                         necessaryJump = true;
                     }
-                    else if (criticalPointDescription == "jumpRiverPoint") jumpOnRiverEnabled = true;
-                    else if (criticalPointDescription == "endJumpRiverPoint") jumpOnRiverEnabled = false;
+                    else if (criticalPointDescription == "jumpRiverPoint")
+                    {
+                        jumpOnRiverEnabled = true;
+                    }
+                    else if (criticalPointDescription == "endJumpRiverPoint")
+                    {
+                        jumpOnRiverEnabled = false;
+                    }
 
                     // end region
 
@@ -263,7 +270,12 @@ public class CharacterController : MonoBehaviour
             }
 
             // start the under arch animation on critical points, arch index: 42-43, 54-55
-            if ((nextPointIndex == 43 || nextPointIndex == 55) && !underArch) StartCoroutine(cameraAnimationsController.MoveCameraUnderArch(underArchCameraAnimDuration));
+            if ((nextPointIndex == 43 || nextPointIndex == 55) && !underArch)
+            {
+                StartCoroutine(cameraAnimationsController.MoveCameraUnderArch(underArchCameraAnimDuration));
+                underArch = true;
+            }
+            if (nextPointIndex == 44 || nextPointIndex == 56) underArch = false;
         }
     }
 
@@ -283,8 +295,9 @@ public class CharacterController : MonoBehaviour
 
         yield return StartCoroutine(NecessaryJumpAnimation(startPosition, targetPosition, duration, jumpHeight));
 
-        animator.speed = 1;
+        animator.speed = 1; 
         gamePaused = false;
+            
         necessaryJump = false;
 
         currentSurfaceType = SurfaceType.Road;
@@ -494,8 +507,7 @@ public class CharacterController : MonoBehaviour
 
         nextPointIndex = pointIndex + 1;
         charPosWithoutControlling = targetPos;
-        animator.speed = 1;
-        gamePaused = false;
+        if (!gameEnded) { animator.speed = 1; gamePaused = false; }
     }
 
     IEnumerator ReturnToCenter(float duration)
@@ -526,7 +538,7 @@ public class CharacterController : MonoBehaviour
         if (nextPointIndex == rootPointsObj.childCount - 1) { 
             nextPointIndex = 0;
             speedCoef += 0.1f;
-            dialogManager.ShowText("Faster!", 1f);
+            StartCoroutine(dialogManager.ShowText("Faster!", 1f));
             // resets obstacles and bonuses
             spawner.ResetSpawnObjects();
         }
@@ -543,8 +555,8 @@ public class CharacterController : MonoBehaviour
         yield return StartCoroutine(dialogManager.ShowMistakeFrame(duration));
         Destroy(destroyObstacle);
 
-        if (currentSurfaceType == SurfaceType.Road) animator.speed = 1;
-        gamePaused = false;
+        if (currentSurfaceType == SurfaceType.Road && !gameEnded) animator.speed = 1;
+        if (!gameEnded) gamePaused = false;
     }
 
     public void ClearTheGame()
@@ -558,8 +570,10 @@ public class CharacterController : MonoBehaviour
 
     void EndGame()
     {
+        gameEnded = true;
         gamePaused = true;
         dialogManager.ShowEndScreen();
-        ClearTheGame();
+        
+        charCollider.enabled = true;
     }
 }
