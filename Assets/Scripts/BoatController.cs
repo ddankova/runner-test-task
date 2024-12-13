@@ -26,12 +26,13 @@ public class BoatController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (characterController == null) characterController = character.GetComponent<CharacterController>();
-        GameObject colliderGameObject = other.gameObject;
-
-        if (colliderGameObject != character)
+        if (character !=  null)
         {
-            StartCoroutine(characterController.MistakeAnimation(1f, other.gameObject));
+            if (characterController == null) characterController = character.GetComponent<CharacterController>();
+            if (characterController != null )
+            {
+                characterController.ProcessCollision(other);
+            }
         }
     }
 

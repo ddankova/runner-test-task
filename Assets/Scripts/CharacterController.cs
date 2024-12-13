@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class CharacterController : MonoBehaviour
 {
     public Transform rootPointsObj;
-    public bool charMoving;
 
     GameObject boat = null;
 
@@ -82,17 +82,22 @@ public class CharacterController : MonoBehaviour
     {
         if (other.gameObject != boat)
         {
-            string tag = other.gameObject.tag;
-            if (tag == "obstacle")
-            {
-                StartCoroutine(MistakeAnimation(0.5f, other.gameObject));
-
-                if (scoreManager.lives == 0) EndGame();
-            }
-            else if (tag == "blueBonus") scoreManager.IncreaseScore(1);
-            else if (tag == "greenBonus") scoreManager.IncreaseScore(2);
-            else if (tag == "yellowBonus") scoreManager.IncreaseScore(3);
+            ProcessCollision(other);
         }
+    }
+
+    public void ProcessCollision(Collider other)
+    {
+        string tag = other.gameObject.tag;
+        if (tag == "obstacle")
+        {
+            StartCoroutine(MistakeAnimation(0.5f, other.gameObject));
+
+            if (scoreManager.lives == 0) EndGame();
+        }
+        else if (tag == "blueBonus") scoreManager.IncreaseScore(1);
+        else if (tag == "greenBonus") scoreManager.IncreaseScore(2);
+        else if (tag == "yellowBonus") scoreManager.IncreaseScore(3);
     }
 
     private void OnEnable()
@@ -107,11 +112,9 @@ public class CharacterController : MonoBehaviour
 
     private void Start()
     {
-        charPosWithoutControlling = transform.position;
         cameraAnimationsController = Camera.main.gameObject.GetComponent<CameraAnimationsController>();
         spawner = GameObject.FindWithTag("spawner").GetComponent<ObjectsSpawner>();
-        // initial set of obstacles and bonuses
-        spawner.ResetSpawnObjects();
+
         GameObject dialogManagerObject = GameObject.FindWithTag("dialogManager");
         dialogManager = dialogManagerObject.GetComponent<DialogManager>();
         scoreManager = dialogManager.GetComponent<ScoreManager>();
@@ -119,16 +122,21 @@ public class CharacterController : MonoBehaviour
 
         boat = GameObject.FindWithTag("boat");
         boatController = boat.GetComponent<BoatController>();
-        boatController.character = gameObject;
 
         charCollider = GetComponent<Collider>();
 
         currentDeviation = deviationOnRoad;
+        boatController.character = gameObject;
+        // initial set of obstacles and bonuses
+        spawner.ResetSpawnObjects();
+        charPosWithoutControlling = transform.position;
+
+        scoreManager.ResetAll();
     }
 
     void Update()
     {
-        if (charMoving && !gamePaused)
+        if (!gamePaused)
         {
             float deltaTime = Time.deltaTime;
             Transform nextPointTransform = rootPointsObj.GetChild(nextPointIndex);
@@ -539,9 +547,19 @@ public class CharacterController : MonoBehaviour
         gamePaused = false;
     }
 
+    public void ClearTheGame()
+    {
+        gamePaused = true;
+        boatController.ResetPosition();
+        spawner.DestroyAllSpawnedObjects();
+        Destroy(GetComponent<CharacterController>());
+        gameObject.SetActive(false);
+    }
+
     void EndGame()
     {
+        gamePaused = true;
         dialogManager.ShowEndScreen();
-        gameObject.SetActive(false);
+        ClearTheGame();
     }
 }

@@ -7,9 +7,20 @@ public class DialogManager : MonoBehaviour
 {
     [SerializeField] GameObject dialogText;
     [SerializeField] GameObject endScreen;
+    [SerializeField] GameObject pauseScreen;
     [SerializeField] Text scoreText;
     [SerializeField] Text bestScoreText;
     [SerializeField] Image mistakeImage;
+
+    public void ShowPause()
+    {
+        pauseScreen.SetActive(true);
+    }
+
+    public void HidePause()
+    {
+        pauseScreen.SetActive(false);
+    } 
 
     public IEnumerator ShowText(string text, float duration)
     {
@@ -53,6 +64,8 @@ public class DialogManager : MonoBehaviour
 
     public IEnumerator ShowMistakeFrame(float duration)
     {
+        mistakeImage.gameObject.SetActive(true);
+
         float halfDuration = duration / 2f;
         Color originalColor = mistakeImage.color;
         Color transparentColor = new Color(originalColor.r, originalColor.g, originalColor.b, 0f);
@@ -83,6 +96,8 @@ public class DialogManager : MonoBehaviour
             mistakeImage.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
             yield return null;
         }
+
+        mistakeImage.gameObject.SetActive(false);
     }
 
     public void ShowEndScreen()
@@ -92,6 +107,11 @@ public class DialogManager : MonoBehaviour
         scoreManager.UpdateBestScore();
         scoreText.text = scoreManager.score.ToString();
         bestScoreText.text = "Best score: " + scoreManager.bestScore;
+    }
+
+    public void HideEndScreen()
+    {
+        endScreen.SetActive(false);
     }
 
     private IEnumerator MoveRectTransform(RectTransform rectTransform, Vector3 start, Vector3 end, float duration)

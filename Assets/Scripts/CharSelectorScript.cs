@@ -31,15 +31,28 @@ public class CharSelectorScript : MonoBehaviour
 
     Vector3 animalParentChoicePosition = Vector3.zero;
 
+    List<Vector3> charSelectionPositions = new List<Vector3>()
+    {
+        new Vector3 (-600, -100, 0),
+        new Vector3 (-200, -100, 0),
+        new Vector3 (200, -100, 0),
+        new Vector3 (600, -100, 0)
+    };
+
+    Vector3 charSelectionRotation = new Vector3 (20, 0, 0);
+
+    bool selection = false;
+
     void Start()
     {
         animalsParent.GetComponent<AudioSource>().Play();
-
-        StartSelection();
     }
 
     public void StartSelection()
     {
+        chosenChar = null;
+        selection = true;
+        
         // setting the characters parent obj before the camera
         if (mainCamera == null)
         {
@@ -58,7 +71,16 @@ public class CharSelectorScript : MonoBehaviour
 
         chars = GetAllChildObjects(animalsParent);
 
-        chars.ForEach(character => character.transform.localScale = Vector3.one * charNormalScale);
+        chars.ForEach(character => {
+            character.SetActive(true);
+            Transform charTransform = character.transform;
+            charTransform.localScale = Vector3.one * charNormalScale;
+            charTransform.localPosition = charSelectionPositions[chars.IndexOf(character)];
+            charTransform.localRotation = Quaternion.Euler(charSelectionRotation);
+        });
+
+        chooseCharScreen.SetActive(true);
+        gameScreen.SetActive(false);
 
         StartCoroutine(RotateCharacters());
     }
@@ -66,7 +88,7 @@ public class CharSelectorScript : MonoBehaviour
     void Update()
     {
         // Check if the left mouse button is pressed
-        if (Input.GetMouseButtonDown(0)) // 0 is for the left mouse button
+        if (Input.GetMouseButtonDown(0) && selection)
         {
             Vector3 mousePosition = Input.mousePosition;
 
@@ -141,7 +163,7 @@ public class CharSelectorScript : MonoBehaviour
     }
 
     // ConfirmCharacter method confirms the character choice, exits the screen snd starts the game
-    public void ConfirmCharacterAndSetItToStart()
+    void ConfirmCharacterAndSetItToStart()
     {
         confirmedChar = chosenChar;
 
@@ -166,7 +188,25 @@ public class CharSelectorScript : MonoBehaviour
         confirmedChar.transform.eulerAngles = charStartRotation;
         confirmedChar.transform.localScale = charGameScale;
 
-        mainCamera.gameObject.GetComponent<CameraAnimationsController>().StartTheGameFirstTime(confirmedChar);
+        mainCamera.gameObject.GetComponent<CameraAnimationsController>().StartTheGameAnimation(confirmedChar);
+
+        selection = false;
+    }
+
+    public void SetTheSameCharacterToGame()
+    {
+        confirmedChar.SetActive(true);
+        CharacterController charController = confirmedChar.AddComponent<CharacterController>();
+        charController.rootPointsObj = rootPoints;
+
+        animalsParent.transform.position = Vector3.zero;
+        animalsParent.transform.rotation = Quaternion.identity;
+
+        confirmedChar.transform.position = rootPoints.GetChild(0).position;
+        confirmedChar.transform.eulerAngles = charStartRotation;
+        confirmedChar.transform.localScale = charGameScale;
+
+        mainCamera.gameObject.GetComponent<CameraAnimationsController>().StartTheGameAnimation(confirmedChar);
     }
 
     IEnumerator RotateCharacters()

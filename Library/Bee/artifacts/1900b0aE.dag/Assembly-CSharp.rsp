@@ -364,8 +364,10 @@
 "Assets/Scripts/CharacterController.cs"
 "Assets/Scripts/CharSelectorScript.cs"
 "Assets/Scripts/DialogManager.cs"
+"Assets/Scripts/InstructionController.cs"
 "Assets/Scripts/LoadingScript.cs"
 "Assets/Scripts/ObjectsSpawner.cs"
+"Assets/Scripts/PauseController.cs"
 "Assets/Scripts/SafeArea.cs"
 "Assets/Scripts/ScoreManager.cs"
 -langversion:9.0

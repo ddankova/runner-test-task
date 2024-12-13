@@ -12,6 +12,7 @@ TagManager:
   - yellowBonus
   - greenBonus
   - character
+  - pauseBtn
   layers:
   - Default
   - TransparentFX

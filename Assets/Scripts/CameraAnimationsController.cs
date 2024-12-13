@@ -22,10 +22,23 @@ public class CameraAnimationsController : MonoBehaviour
     // camera to look a little upper than the character point
     Vector3 correctingCameraLookAtVector = Vector3.up * 3;
 
+    Vector3 initCameraPosition = Vector3.zero;
+
+    private void Start()
+    {
+        initCameraPosition = transform.position;
+    }
     // Update is called once per frame
     void Update()
     {
         if (startAnimationsEnded) SetCameraBehindChar();
+    }
+
+    public void ResetCameraPosition()
+    {
+        transform.position = initCameraPosition;
+        startAnimationsEnded = false;
+        background.SetActive(true);
     }
 
     void SetCameraBehindChar()
@@ -41,7 +54,7 @@ public class CameraAnimationsController : MonoBehaviour
     /// The first launching of the game
     /// </summary>
     /// <param name="character"></param> confirmed character to play
-    public void StartTheGameFirstTime(GameObject character)
+    public void StartTheGameAnimation(GameObject character)
     {
         this.character = character;
         charController = character.GetComponent<CharacterController>();
@@ -53,8 +66,6 @@ public class CameraAnimationsController : MonoBehaviour
     {
         // initial camera rotation
         yield return StartCoroutine(RotateCameraToLookAtCharacter(1f));
-
-        charController.charMoving = true;
 
         StartCoroutine(StartCameraMovement());
 

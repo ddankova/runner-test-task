@@ -56,13 +56,30 @@ public class ObjectsSpawner : MonoBehaviour
         ResetBonuses();
     }
 
+    public void DestroyAllSpawnedObjects()
+    {
+        int obstaclesCount = obstaclesParent.childCount;
+
+        if (obstaclesCount > 0)
+        {
+            for (int i = 0; i < obstaclesCount; i++) Destroy(obstaclesParent.GetChild(i).gameObject);
+        }
+
+        int bonusesCount = bonusParent.childCount;
+
+        if (bonusesCount > 0)
+        {
+            for (int i = 0; i < bonusesCount; i++) Destroy(bonusParent.GetChild(i).gameObject);
+        }
+    }
+
     void ResetObstacles()
     {
         int obstaclesCount = obstaclesParent.childCount;
 
         if (obstaclesCount > 0)
         {
-            for (int i = 0; i < obstaclesCount; i++) Destroy(obstaclesParent.GetChild(i));
+            for (int i = 0; i < obstaclesCount; i++) Destroy(obstaclesParent.GetChild(i).gameObject);
         }
 
         // iterating through points to set obstacles
@@ -152,7 +169,7 @@ public class ObjectsSpawner : MonoBehaviour
 
         if (bonusesCount > 0)
         {
-            for (int i = 0; i < bonusesCount; i++) Destroy(bonusParent.GetChild(i));
+            for (int i = 0; i < bonusesCount; i++) Destroy(bonusParent.GetChild(i).gameObject);
         }
 
         // iterating through points to set obstacles
