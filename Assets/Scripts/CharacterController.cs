@@ -537,7 +537,7 @@ public class CharacterController : MonoBehaviour
     {
         if (nextPointIndex == rootPointsObj.childCount - 1) { 
             nextPointIndex = 0;
-            speedCoef += 0.1f;
+            speedCoef += 0.2f;
             StartCoroutine(dialogManager.ShowText("Faster!", 1f));
             // resets obstacles and bonuses
             spawner.ResetSpawnObjects();
